@@ -12,50 +12,29 @@ namespace Exercise1
     {
         static void Main(string[] args)
         {
-            //Hvad sker der med eksekveringstiden?
-            //Den var altid hurtigere i poolen. Specielt efter det nestede for loop
+            //Start() - Starter en tråd
+            //Sleep() - Pauser en tråd 
+            //Suspend() - Stopper tråd of venter på at blive resumed
+            //Resume() - Genoptager en tråd
+            //Abort() - Fjerner tråden
+            //Join() - Venter må alle tråde i mainer færdige før den fortsætter.
 
-            Stopwatch mywatch = new Stopwatch();
-            Console.WriteLine("Thread Pool Execution");
-            mywatch.Start();
-            ProcessWithThreadPoolMethod();
-            mywatch.Stop();
-            Console.WriteLine("Time consumed by ProcessWithThreadPoolMethod is : " + mywatch.ElapsedTicks.ToString());
-            mywatch.Reset();
-            Console.WriteLine("Thread Execution");
-            mywatch.Start();
-            ProcessWithThreadMethod();
-            mywatch.Stop();
-            Console.WriteLine("Time consumed by ProcessWithThreadMethod is : " + mywatch.ElapsedTicks.ToString());
+            Thread thread1 = Thread.CurrentThread;
+            thread1.Priority = ThreadPriority.Highest;
+            ThreadPool.QueueUserWorkItem(MyMethod, thread1);
+
+            Thread thread2 = Thread.CurrentThread;
+            thread2.IsBackground = true;
+            ThreadPool.QueueUserWorkItem(MyMethod, thread2);
+
             Console.ReadKey();
-
         }
 
-        static void ProcessWithThreadPoolMethod()
+        public static void MyMethod(object obj)
         {
-            for (int i = 0; i <= 10; i++)
-            {
-                ThreadPool.QueueUserWorkItem(Process);
-            }
+            Thread thread = (Thread)obj;
+            string message = $"Background: {thread.IsBackground}, Thread Pool: {thread.IsThreadPoolThread}, Thread Priority: {thread.Priority}";
+            Console.WriteLine(message);
         }
-
-        static void ProcessWithThreadMethod()
-        {
-            for (int i = 0; i <= 10; i++)
-            {
-                Thread obj = new Thread(Process);
-                obj.Start();
-            }
-        }
-        static void Process(object callback)
-        {
-            for (int i = 0; i < 100000; i++)
-            {
-                for (int j = 0; j < 100000; j++)
-                {
-                }
-            }
-        }
-
     }
 }
